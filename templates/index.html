@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech to Text</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Speech to Text Transcription</h1>
+        <form id="transcribeForm">
+            <button type="button" onclick="startTranscription()">Start Transcription</button>
+        </form>
+        <div id="status"></div>
+        <div id="result"></div>
+    </div>
+    <script>
+        function startTranscription() {
+            document.getElementById('status').innerText = "Recording audio...";
+            fetch('/transcribe', {
+                method: 'POST',
+            }).then(response => response.json())
+              .then(data => {
+                  document.getElementById('status').innerText = "Processing...";
+                  document.getElementById('result').innerText = data.transcription;
+                  document.getElementById('status').innerText = "";  // Clear status after processing
+              });
+        }
+    </script>
+</body>
+</html>
