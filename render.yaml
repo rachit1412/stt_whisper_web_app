@@ -1,7 +1,9 @@
 services:
   - type: web
     name: stt_website
-    env: docker
-    dockerfilePath: Dockerfile
-    buildCommand: ""
-    startCommand: ""
+    env: python
+    buildCommand: |
+      apt-get update && apt-get install -y portaudio19-dev libasound2-dev
+      pip install --upgrade pip
+      pip install -r requirements.txt
+    startCommand: python app.py

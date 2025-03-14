@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
-import os 
-import sounddevice as sd
+import os
+import pyaudio
+import wave
 import soundfile as sf
 import numpy as np
 from faster_whisper import WhisperModel
@@ -13,9 +14,23 @@ model = WhisperModel(model_size, device="cpu", compute_type="float32")
 
 # Function to record audio chunk
 def record_chunk(file_path, duration=10, fs=16000):
-    recording = sd.rec(int(duration * fs), samplerate=fs, channels=1, dtype='int16')
-    sd.wait()  # Wait until recording is finished
-    sf.write(file_path, recording, fs)
+    audio = pyaudio.PyAudio()
+    stream = audio.open(format=pyaudio.paInt16, channels=1, rate=fs, input=True, frames_per_buffer=1024)
+    frames = []
+
+    for _ in range(0, int(fs / 1024 * duration)):
+        data = stream.read(1024)
+        frames.append(data)
+
+    stream.stop_stream()
+    stream.close()
+    audio.terminate()
+
+    with wave.open(file_path, 'wb') as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
+        wf.setframerate(fs)
+        wf.writeframes(b''.join(frames))
 
 # Function to transcribe audio chunk
 def transcribe_chunk(model, file_path):
