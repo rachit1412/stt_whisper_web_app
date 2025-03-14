@@ -3,7 +3,8 @@ services:
     name: stt_website
     env: python
     buildCommand: |
-      apt-get update && apt-get install -y portaudio19-dev libportaudio2
+      apt-get update && apt-get install -y portaudio19-dev libportaudio2 libasound2
+      export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
       pip install --upgrade pip
       pip install -r requirements.txt
     startCommand: python app.py
